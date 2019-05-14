@@ -12,7 +12,8 @@ $.noConflict();
 (($) => {
     'use strict';
 
-    const blockList = [];
+    let blockList = localStorage.getItem('juejin-blocklist');
+    blockList = JSON.parse(blockList) || [];
    
     const blockTask = () => {
       blockList.forEach((id) => {
@@ -21,10 +22,41 @@ $.noConflict();
       });
     }
 
+
+    const block = function() {
+      const item = $(this).parents('.item');
+      const username = item.find('.username');
+      const url = username.attr('href');
+      const id = url.split('/')[2];
+      let blockList = localStorage.getItem('juejin-blocklist');
+      blockList = JSON.parse(blockList) || [];
+      blockList.push(id);
+      localStorage.setItem('juejin-blocklist', JSON.stringify(blockList));
+      item.remove();
+    }
+
+
+    const addBlockButton = () => {
+      const menuNode = $('.pin-header-more.header-menu')[0];
+      let scope;
+      if (menuNode) {
+        scope = menuNode.attributes.item(0).nodeName;
+      }
+      
+      $('.header-menu .dropdown-menu').each(function() {
+        if ($(this).has('.block-btn').length === 0) {
+          // 获取当前btn的scope
+          $(this).append(`<li ${scope} class="block-btn">Block</li>`);
+        }
+      })
+    }
+
     const startClear = () => {
+      addBlockButton();
       blockTask();
     }
 
+    $('#juejin').on('click', '.block-btn', block);
     
     $(window).on('scroll', () => {
       startClear();
