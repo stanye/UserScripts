@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Juejin Gangjin Block
 // @namespace    https://github.com/stanye/UserScripts/
-// @version      0.1.1
+// @version      0.1.4
 // @description  屏蔽钢筋
 // @author       stanye
 // @include      /^https?:\/\/(\w+\.)?juejin\.im\//
@@ -14,7 +14,7 @@ $.noConflict();
 
     let blockList = localStorage.getItem('juejin-blocklist');
     blockList = JSON.parse(blockList) || [];
-   
+
     const blockTask = () => {
       blockList.forEach((id) => {
         // block当前人的item
@@ -22,27 +22,38 @@ $.noConflict();
       });
     }
 
-
-    const block = function() {
-      const item = $(this).parents('.item');
-      const username = item.find('.username');
-      const url = username.attr('href');
-      const id = url.split('/')[2];
+    const setUrlToLocalStorage = (url) => {
+      const id = url && url.split('/')[2];
       let blockList = localStorage.getItem('juejin-blocklist');
       blockList = JSON.parse(blockList) || [];
-      blockList.push(id);
+      if (!blockList.includes(id)) {
+        blockList.push(id);
+      }
       localStorage.setItem('juejin-blocklist', JSON.stringify(blockList));
+    }
+
+    const block = function() {
+      let item = $(this).parents('.item');
+      if (item.length === 0) item = $(this).parents('.pin-header-row');
+      const username = item.find('.username');
+      const url = username.attr('href');
+      setUrlToLocalStorage(url);
       item.remove();
     }
 
+    const bigblock = function() {
+      const url = location.pathname;
+      setUrlToLocalStorage(url);
+      window.location.href = 'https://juejin.im';
+    }
 
-    const addBlockButton = () => {
+    const addBlockButtonInList = () => {
       const menuNode = $('.pin-header-more.header-menu')[0];
       let scope;
       if (menuNode) {
         scope = menuNode.attributes.item(0).nodeName;
       }
-      
+
       $('.header-menu .dropdown-menu').each(function() {
         if ($(this).has('.block-btn').length === 0) {
           // 获取当前btn的scope
@@ -51,18 +62,52 @@ $.noConflict();
       })
     }
 
+    const addBlockButtonInProfile = () => {
+      const menuNode = $('.user-info-block .action-box')[0];
+      let scope;
+      if (menuNode) {
+        scope = menuNode.attributes.item(0).nodeName;
+      }
+
+      const actionBox = $('.user-info-block .action-box');
+      if (actionBox.has('.big-block-btn').length === 0) {
+        actionBox.append(`<button ${scope} class="follow-btn btn big-block-btn" style="color: red;">Block</button>`);
+      }
+    }
+
+    const addBlockButtonInCommentList = () => {
+      const menuNode = $('.comment .action-box')[0];
+      let scope;
+      if (menuNode) {
+        scope = menuNode.attributes.item(0).nodeName;
+      }
+
+      const actionBox = $('.comment .action-box');
+      actionBox.each(function() {
+        if ($(this).has('.block-action').length === 0) {
+          // 获取当前btn的scope
+          $(this).prepend(`<div ${scope} class="block-action action" style="color: red">Block</div>`);
+        }
+      })
+    }
+
     const startClear = () => {
-      addBlockButton();
+      addBlockButtonInList();
+      addBlockButtonInProfile();
+      addBlockButtonInCommentList();
       blockTask();
     }
 
     $('#juejin').on('click', '.block-btn', block);
-    
+
+    $('#juejin').on('click', '.block-action', block);
+
+    $('#juejin').on('click', '.big-block-btn', bigblock);
+
     $(window).on('scroll', () => {
       startClear();
     });
 
-    setTimeout(startClear, 1000)
-    
+    setTimeout(startClear, 1000);
 })(jQuery);
 
