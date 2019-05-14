@@ -62,7 +62,7 @@ $.noConflict();
       startClear();
     });
 
-    startClear();
+    setTimeout(startClear, 1000)
     
 })(jQuery);
 
