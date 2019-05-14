@@ -12,9 +12,7 @@ $.noConflict();
 (($) => {
     'use strict';
 
-    const blockList = [
-      '55f981bcddb2e44a4824f38c'
-    ];
+    const blockList = [];
    
     const blockTask = () => {
       blockList.forEach((id) => {
