@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Juejin Gangjin Block
 // @namespace    https://github.com/stanye/UserScripts/
-// @version      0.1.0
+// @version      0.1.1
 // @description  屏蔽钢筋
 // @author       stanye
 // @include      /^https?:\/\/(\w+\.)?juejin\.im\//
